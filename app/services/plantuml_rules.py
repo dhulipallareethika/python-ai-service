@@ -31,12 +31,13 @@ USE_CASE_RULES = """
 
 COMPONENT_RULES = """
 1. Use 'skinparam componentStyle uml2'.
-2. Define components: 'component [Display Name] as Alias'. Note the square brackets [].
-3. CRITICAL: NEVER include attributes, fields, or '+' signs inside a component.
-4. Components DO NOT use curly braces '{}' for member lists. This avoids syntax errors.
+2. Define components ONLY as: 'component [Display Name] as Alias'. Use square brackets [].
+3. CRITICAL: Components must NOT contain attributes, methods, fields, or visibility symbols (+, -, #).
+4. Components must NOT use curly braces '{}' or class/ERD syntax.
+5. Use ONLY architectural relationships between components (-->).
+6. FORBIDDEN keywords: participant, actor, autonumber, activate, deactivate, entity, class.
+7. The diagram must represent SYSTEM ARCHITECTURE, not behavior or interactions.
 """
-
-# app/services/plantuml_rules.py
 
 DATABASE_CODE_RULES = """
 Task: Convert the provided JSON classes into production-ready Database Schemas.

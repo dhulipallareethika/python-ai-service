@@ -1,6 +1,5 @@
 def getPromptMessage(diagramType:  str, extraContext: str, requirements: str,language:str):
     lang = language.upper()
-    
     if lang == "MERMAID":
         syntax_header = "appropriate Mermaid header (e.g., erDiagram, sequenceDiagram, graph TD, etc.)"
         constraint_text = f"""
@@ -27,30 +26,28 @@ def getPromptMessage(diagramType:  str, extraContext: str, requirements: str,lan
     ]
     return messages
 
-# app/services/prompts.py
-
 def getPromptDerivedArtifact(extraContext, sourceUML, requirements):
-    # We add a 'STRICT NO-UML' instruction here
+
     prompt = f"""
-    {extraContext}
-
-    ### DATA SOURCE
-    Based on this Architecture Design:
-    {sourceUML}
-
-    And this Structured Data Model:
-    {requirements}
-
-    ### FINAL INSTRUCTION
-    You are a Code Generator, NOT a diagram generator. 
-    - If this is API: Return ONLY valid YAML.
-    - If this is DATABASE: Return ONLY valid SQL and MongoDB commands.
-    - REJECT all PlantUML tags. If you output '@startuml', the system will fail.
-    """
+{extraContext}
+### STRUCTURED DATA MODEL (SOURCE OF TRUTH)
+{requirements}
+### UML CONTEXT (ONLY FOR DATABASE, EMPTY FOR API)
+{sourceUML}
+### FINAL RULES
+You are a CODE GENERATOR ONLY.
+- API → Output ONLY OpenAPI YAML
+- DATABASE → Output ONLY SQL + MongoDB
+- NO UML
+- NO PlantUML
+- NO @startuml
+- NO diagrams
+- NO markdown
+"""
     messages = [
         {
-            "role": "system", 
-            "content": "You are a specialized bot that converts UML designs into raw code (YAML/SQL). You never use markdown, never use conversational filler, and never use PlantUML tags."
+            "role": "system",
+            "content": "You are a strict code generator. You never output UML, diagrams, markdown, or explanations."
         },
         {"role": "user", "content": prompt}
     ]
@@ -59,14 +56,11 @@ def getPromptDerivedArtifact(extraContext, sourceUML, requirements):
 def getPromptExtractStructure(requirements: str, project_id: str):
     prompt = f"""
     Task: Analyze the requirements and extract a structured Class Diagram JSON.
-    
     Rules for Enums:
     - Attribute "nature": Must be one of ["Identifying", "Descriptive", "Optional"]
     - Relationship "nature": Must be one of ["Association", "Aggregation", "Composition"]
     - Relationship "sourcetype"/"targettype": Must be one of ["One", "Many"]
-
     Constraint: Return ONLY a raw JSON object. No markdown, no triple backticks (```).
-    
     Structure:
     {{
         "project_id": "{project_id}",
@@ -82,7 +76,6 @@ def getPromptExtractStructure(requirements: str, project_id: str):
             }}
         ]
     }}
-
     User Requirements:
     {requirements}
     """

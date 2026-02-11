@@ -6,19 +6,26 @@ from app.services.plantuml_rules import (ERD_SPECIFIC_RULES, SEQUENCE_RULES, CLA
 from app.services.prompts import getPromptMessage, getPromptDerivedArtifact
 
 async def generate_derived_artifact(artifact_type: str, requirements: str, source_uml: str, classes: List[ClassModel]) -> str:
-    diag_type_key = artifact_type.upper()
-    if "DATABASE" in diag_type_key:
+    artifact_key = artifact_type.upper()
+    if artifact_key == "DATABASE":
         extra_context = DATABASE_CODE_RULES
-    else:
+    elif artifact_key == "API":
         extra_context = API_CONTRACT_RULES
+    else:
+        raise ValueError("Invalid derived artifact type")
     class_data = [cls.model_dump() for cls in classes]
     enriched_requirements = (
-        f"Original User Requirements: {requirements}\n\n"
-        f"STRICT ARCHITECTURAL STRUCTURE (Use these entities and fields only):\n"
+        f"Original User Requirements:\n{requirements}\n\n"
+        f"STRICT STRUCTURED DATA MODEL (SOURCE OF TRUTH):\n"
         f"{json.dumps(class_data, indent=2)}"
     )
-    messages = getPromptDerivedArtifact(extra_context, source_uml, enriched_requirements)
+    messages = getPromptDerivedArtifact(
+        extra_context,
+        source_uml if artifact_key == "DATABASE" else "",  # UML only for DB
+        enriched_requirements
+    )
     llm_response = await get_chat_completion(messages)
+    print(llm_response)
     return llm_response
 
 def clean_plantuml_code(raw_code: str) -> str:

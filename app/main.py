@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Body
 from app.model import *
 from app.services.generate import generate_diagram, generate_derived_artifact
 from app.handlers import global_exception_handler, global_response_middleware
@@ -6,8 +6,6 @@ from fastapi.exceptions import RequestValidationError
 from app.services.extract import extract_project_structure
 
 app = FastAPI(title="Archie AI Service", openapi_version="3.0.2")
-
-# Global Error Handlers for robust validation and exception catching
 app.add_exception_handler(Exception, global_exception_handler)
 app.add_exception_handler(RequestValidationError, global_exception_handler)
 
@@ -19,50 +17,47 @@ async def wrap_response(request: Request, call_next):
     return await global_response_middleware(request, call_next)
 
 @app.post("/generate")
-async def generate(request: GenerateRequest):
-    """
-    Generates either a visual diagram or a code-based artifact (SQL/OpenAPI).
-    """
+async def generate(request: GenerateRequest = Body(...)):
     diagramType = request.diagramType
     diagramLanguage = request.diagramLanguage
-    
-    # 1. Handle Derived Artifacts (DATABASE -> SQL, API -> OpenAPI)
-    if diagramType in [DiagramType.DATABASE, DiagramType.API]:
-        is_db = (diagramType == DiagramType.DATABASE)
-        # Use ERD logic for Database and Sequence logic for API as the base UML context
-        base_uml_type = "ERD" if is_db else "SEQUENCE" 
-        
-        # Step A: Generate the intermediate UML context (PlantUML)
+    if diagramType == DiagramType.DATABASE:
         uml_context = await generate_diagram(
-            base_uml_type, 
-            request.requirementsText, 
-            "PLANTUML", 
-            request.classes 
+            "ERD",
+            request.requirementsText,
+            "PLANTUML",
+            request.classes
         )
-        
-        # Step B: Transform the UML and Classes into the final code-based artifact
         final_output = await generate_derived_artifact(
-            diagramType.value, 
-            request.requirementsText, 
+            "DATABASE",
+            request.requirementsText,
             uml_context,
-            request.classes  
+            request.classes
         )
-        
         return {
             "diagramType": diagramType,
-            "diagramLanguage": "SQL/NoSQL" if is_db else "OPENAPI",
-            "diagramCode": final_output,  # The YAML or SQL code
-            "isRenderable": False         # These are code snippets, not images
+            "diagramLanguage": "SQL/NoSQL",
+            "diagramCode": final_output,
+            "isRenderable": False
         }
-    
-    # 2. Handle Standard Visual Diagrams (CLASS, SEQUENCE, USE_CASE, etc.)
+    if diagramType == DiagramType.API:
+        final_output = await generate_derived_artifact(
+            "API",
+            request.requirementsText,
+            "",  
+            request.classes
+        )
+        return {
+            "diagramType": diagramType,
+            "diagramLanguage": "OPENAPI",
+            "diagramCode": final_output,
+            "isRenderable": False
+        }
     diagram_code = await generate_diagram(
-        diagramType.value, 
-        request.requirementsText, 
+        diagramType.value,
+        request.requirementsText,
         request.diagramLanguage,
-        request.classes  
+        request.classes
     )
-    
     return {
         "diagramType": diagramType,
         "diagramLanguage": diagramLanguage,
@@ -71,7 +66,7 @@ async def generate(request: GenerateRequest):
     }
 
 @app.post("/extract", response_model=ProjectResponse)
-async def extract_structure(request: ExtractionRequest):
+async def extract_structure(request: ExtractionRequest = Body(...)):
     """
     Analyzes raw text requirements and extracts the structured JSON classes 
     required for the /generate endpoint.
