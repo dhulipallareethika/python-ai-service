@@ -21,10 +21,6 @@ class DiagramBaseModel(BaseModel):
             return v.upper().replace(" ", "_")
         return v
 
-class GenerateRequest(DiagramBaseModel):
-    requirementsText: str
-    diagramLanguage:str
-
 class RefineRequest(DiagramBaseModel):
     existingDiagramCode: str
     userInstruction: str
@@ -78,3 +74,8 @@ class ApiResponse(BaseModel):
     status: str
     data: Optional[Any] = None
     error: Optional[ErrorResponse] = None
+
+class GenerateRequest(DiagramBaseModel):
+    requirementsText: str
+    diagramLanguage: str
+    classes: List[ClassModel]

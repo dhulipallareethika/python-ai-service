@@ -27,17 +27,31 @@ def getPromptMessage(diagramType:  str, extraContext: str, requirements: str,lan
     ]
     return messages
 
+# app/services/prompts.py
+
 def getPromptDerivedArtifact(extraContext, sourceUML, requirements):
+    # We add a 'STRICT NO-UML' instruction here
     prompt = f"""
     {extraContext}
-    [Source PlantUML Code]:
+
+    ### DATA SOURCE
+    Based on this Architecture Design:
     {sourceUML}
-    [Original User Requirements]:
+
+    And this Structured Data Model:
     {requirements}
-    Constraint: Return ONLY the raw code/JSON. No markdown blocks.
+
+    ### FINAL INSTRUCTION
+    You are a Code Generator, NOT a diagram generator. 
+    - If this is API: Return ONLY valid YAML.
+    - If this is DATABASE: Return ONLY valid SQL and MongoDB commands.
+    - REJECT all PlantUML tags. If you output '@startuml', the system will fail.
     """
     messages = [
-        {"role": "system", "content": "You are a technical architect specializing in code generation from UML."},
+        {
+            "role": "system", 
+            "content": "You are a specialized bot that converts UML designs into raw code (YAML/SQL). You never use markdown, never use conversational filler, and never use PlantUML tags."
+        },
         {"role": "user", "content": prompt}
     ]
     return messages
