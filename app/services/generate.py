@@ -34,7 +34,7 @@ def clean_plantuml_code(raw_code: str) -> str:
     cleaned = cleaned.replace('```', '').strip()
     return cleaned
 
-async def generate_diagram(diagram_type: str, requirements: str, language: str, classes: List[ClassModel]) -> str:
+async def generate_diagram(diagram_type: str, requirements: str, language: str, classes: List[ClassModel],flag:bool) -> str:
     diag_type_key = diagram_type.upper()
     language_key = language.upper()
     class_data = [cls.model_dump() for cls in classes]
@@ -62,5 +62,6 @@ async def generate_diagram(diagram_type: str, requirements: str, language: str, 
     messages = getPromptMessage(diagram_type, extra_context, final_requirements, language)
     raw_response = await get_chat_completion(messages)
     actual_response = clean_plantuml_code(raw_response) 
-    print(actual_response)
+    if not flag:
+      print(actual_response)
     return actual_response

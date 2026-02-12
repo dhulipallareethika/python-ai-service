@@ -1,10 +1,17 @@
 ERD_SPECIFIC_RULES = """
-1. Use 'skinparam linetype ortho' and 'hide circle'.
-2. Use 'entity "Entity Name" as alias {' for table structures.
-3. Define fields INSIDE the brackets: '* **primary_key** : TYPE', 'field_name : TYPE'.
-4. CRITICAL: Use a horizontal line '--' ONLY inside the curly braces to separate the primary key. 
-5. NEVER place separators like '--' or '==' outside of the entity brackets '}'. 
-6. Use Crow's Foot notation: ||--o{, }|--, etc.
+1. Use 'skinparam linetype ortho' to ensure clean, 90-degree relationship lines.
+2. Use 'hide circle' and 'hide methods' to remove class-style icons and empty method sections.
+3. Use 'entity "Entity Name" as alias {' for table structures.
+4. Define fields INSIDE the brackets:
+   - Use '* **field_name**' for Primary Keys.
+   - Use 'field_name' for regular columns.
+5. CRITICAL: Use a horizontal line '--' ONLY inside the curly braces to separate the primary key from other attributes.
+6. NEVER place separators like '--' or '==' outside of the entity brackets.
+7. Use Crow's Foot notation exclusively: 
+   - Zero or Many: }o--
+   - One or Many: }|--
+   - Exactly One: ||--
+8. Label relationships with ' : ' to describe the action (e.g., 'User ||--o{ Order : places').
 """
 
 SEQUENCE_RULES = """

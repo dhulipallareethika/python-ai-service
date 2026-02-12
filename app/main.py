@@ -25,7 +25,8 @@ async def generate(request: GenerateRequest = Body(...)):
             "ERD",
             request.requirementsText,
             "PLANTUML",
-            request.classes
+            request.classes,
+            flag=True
         )
         final_output = await generate_derived_artifact(
             "DATABASE",
@@ -56,7 +57,8 @@ async def generate(request: GenerateRequest = Body(...)):
         diagramType.value,
         request.requirementsText,
         request.diagramLanguage,
-        request.classes
+        request.classes,
+        flag=False
     )
     return {
         "diagramType": diagramType,
