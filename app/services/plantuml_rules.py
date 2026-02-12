@@ -70,3 +70,77 @@ Task: Create a high-quality OpenAPI 3.1.0 YAML contract.
    - NEVER use PlantUML tags (@startuml).
    - Start immediately with 'openapi: 3.1.0'.
 """
+ERD_MERMAID_RULES = """
+1. HEADER: Use 'flowchart TD' (Top-Down) to reduce horizontal line length and keep the layout compact.
+2. ENTITY SHAPE: Define entities as rectangles with bold text: 'ID[**Entity Name**]'.
+3. ATTRIBUTE SHAPE: Use stadium/oval shapes for attributes: 'AttrID([Attribute Name])'. 
+   - Note: Use '([ ])' instead of '(( ))' to produce professional ovals.
+4. RELATIONSHIP SHAPE: Use diamond shapes: 'RelID{Action}'.
+5. COMPACT CONNECTIONS:
+   - Use '---' (three dashes) for vertical connections to balance the diagram.
+   - Group attributes physically close to their entities in the code to minimize line length.
+6. PROFESSIONAL STYLING:
+   - ENTITIES: 'style ID fill:#dcfce7,stroke:#166534,stroke-width:2px,color:#166534'
+   - ATTRIBUTES: 'style AttrID fill:#ccfbf1,stroke:#0d9488,stroke-width:1px,color:#0d9488'
+   - RELATIONSHIPS: 'style RelID fill:#ffedd5,stroke:#9a3412,stroke-width:2px,color:#9a3412'
+7. FORBIDDEN: Do not use circular nodes '(( ))'. Use only ovals '([ ])'.
+"""
+
+SEQUENCE_MERMAID_RULES = """
+1. Use the 'sequenceDiagram' header.
+2. Use 'autonumber' on the second line to enable message numbering.
+3. Define participants: 'participant Alias as Display Name'.
+4. CRITICAL: Use 'activate Alias' immediately after an incoming message (->>) and 'deactivate Alias' after the return (-->>).
+5. For return messages, use the dotted arrow: 'Alias-->>Alias: message'.
+6. Logic blocks must be strictly closed: 'alt ... else ... end', 'opt ... end', or 'loop ... end'.
+"""
+
+CLASS_MERMAID_RULES = """
+1. Use the 'classDiagram' header at the top.
+2. Define class members inside curly braces: 'class Name { visibility type name }'.
+3. Use visibility markers: 
+   - '-' (private)
+   - '#' (protected)
+   - '+' (public)
+   - '~' (package/internal).
+4. For methods, use the format: 'visibility name(params) type'.
+5. Use standard Mermaid relationship arrows:
+   - Inheritance: <|--
+   - Composition: *--
+   - Aggregation: o--
+   - Association: -->
+   - Dependency: ..>
+   - Realization: ..|>
+6. Use cardinality labels with quotes: 'ClassA "1" --> "*" ClassB : contains'.
+7. CRITICAL: Do not use 'skinparam' or 'hide circle' as these are PlantUML-specific.
+"""
+
+USE_CASE_MERMAID_RULES = """
+1. Use 'flowchart LR' (Left-to-Right) to maximize horizontal space and readability.
+2. SYSTEM BOUNDARY: You MUST wrap all use cases in a 'subgraph' labeled "Student Management System".
+3. ACTOR DEFINITION: Define actors using the circle shape: 'ActorID((Actor Name))'.
+   - Include Student, Instructor, and Administrator as separate nodes outside the subgraph.
+4. USE CASE DEFINITION: Define use cases using the rounded-rectangle shape: 'UseCaseID([Use Case Name])'.
+   - Include every action: Enroll in Course, View Grades, Pay Fees, Update Profile, etc.
+5. STYLING: Add a style command at the end to increase node size: 'classDef default fill:#f9f,stroke:#333,stroke-width:2px;'.
+6. RELATIONSHIPS: Connect actors to use cases using '---'.
+7. FULL SCOPE: Do not omit any actors or use cases found in the requirements; the code must be comprehensive.
+"""
+
+COMPONENT_MERMAID_RULES = """
+1. HEADER: Always start with 'flowchart TD'.
+2. SYSTEM BOUNDARY: You MUST wrap all identified modules within a 'subgraph "System Architecture"'.
+3. COMPONENT SYNTAX: 
+   - Define all functional modules/components using square brackets: 'ID[Display Name]'.
+   - If a component represents a database or storage, use cylindrical brackets: 'ID[(Display Name)]'.
+4. NO INTERNAL DETAIL: Components MUST NOT contain attributes, methods, visibility markers (+, -, #), or curly braces {}.
+5. RELATIONSHIP SYNTAX: Use strictly directed arrows with descriptive labels: 'ID_A -->|action_label| ID_B'.
+6. LAYERING LOGIC:
+   - Place high-level interfaces/users at the top.
+   - Place core logic/services in the middle.
+   - Place data storage/databases at the bottom.
+7. GLOBAL STYLING: You MUST append the following lines at the very end of every code block to ensure the diagram is large and readable:
+   'classDef comp fill:#ffffff,stroke:#333,stroke-width:2px,color:#000;'
+   'class <<ALL_DEFINED_IDS>> comp'
+8. FORBIDDEN: Do not use 'erDiagram', 'classDiagram', 'sequenceDiagram', or any code-level syntax.
+"""

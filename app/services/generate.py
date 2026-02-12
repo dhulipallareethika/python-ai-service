@@ -2,7 +2,9 @@ import re, json
 from typing import List
 from app.kadalClient import get_chat_completion
 from app.model import ClassModel
-from app.services.plantuml_rules import (ERD_SPECIFIC_RULES, SEQUENCE_RULES, CLASS_RULES, COMPONENT_RULES, DATABASE_CODE_RULES, API_CONTRACT_RULES, USE_CASE_RULES)
+from app.services.plantuml_rules import (
+    ERD_SPECIFIC_RULES, SEQUENCE_RULES, CLASS_RULES, COMPONENT_RULES, DATABASE_CODE_RULES, API_CONTRACT_RULES, USE_CASE_RULES,
+    ERD_MERMAID_RULES, SEQUENCE_MERMAID_RULES, CLASS_MERMAID_RULES, USE_CASE_MERMAID_RULES, COMPONENT_MERMAID_RULES)
 from app.services.prompts import getPromptMessage, getPromptDerivedArtifact
 
 async def generate_derived_artifact(artifact_type: str, requirements: str, source_uml: str, classes: List[ClassModel]) -> str:
@@ -21,7 +23,7 @@ async def generate_derived_artifact(artifact_type: str, requirements: str, sourc
     )
     messages = getPromptDerivedArtifact(
         extra_context,
-        source_uml if artifact_key == "DATABASE" else "",  # UML only for DB
+        source_uml if artifact_key == "DATABASE" else "", 
         enriched_requirements
     )
     llm_response = await get_chat_completion(messages)
@@ -30,11 +32,11 @@ async def generate_derived_artifact(artifact_type: str, requirements: str, sourc
 
 def clean_plantuml_code(raw_code: str) -> str:
     if not raw_code: return ""
-    cleaned = re.sub(r'```(?:plantuml|puml|text)?', '', raw_code)
-    cleaned = cleaned.replace('```', '').strip()
+    cleaned = re.sub(r'(?:plantuml|puml|text)?', '', raw_code)
+    cleaned = cleaned.replace('', '').strip()
     return cleaned
 
-async def generate_diagram(diagram_type: str, requirements: str, language: str, classes: List[ClassModel],flag:bool) -> str:
+async def generate_diagram(diagram_type: str, requirements: str, language: str, classes: List[ClassModel], flag: bool) -> str:
     diag_type_key = diagram_type.upper()
     language_key = language.upper()
     class_data = [cls.model_dump() for cls in classes]
@@ -50,11 +52,18 @@ async def generate_diagram(diagram_type: str, requirements: str, language: str, 
             ("CLASS",): CLASS_RULES,
             ("USE CASE", "USE_CASE"): USE_CASE_RULES,
             ("COMPONENT",): COMPONENT_RULES,
+        },
+        "MERMAID": {
+            ("ERD", "ENTITY RELATIONSHIP"): ERD_MERMAID_RULES,
+            ("SEQUENCE",): SEQUENCE_MERMAID_RULES,
+            ("CLASS",): CLASS_MERMAID_RULES,
+            ("USE CASE", "USE_CASE"): USE_CASE_MERMAID_RULES,
+            ("COMPONENT",): COMPONENT_MERMAID_RULES,
         }
     }
-    selected_language_rules = MAPPING.get(language_key, MAPPING["PLANTUML"])
+    language_rules = MAPPING.get(language_key, MAPPING["PLANTUML"])
     extra_context = f"Generate a standard, clean {language_key} diagram."
-    for keywords, context in selected_language_rules.items():
+    for keywords, context in language_rules.items():
         if any(key in diag_type_key for key in keywords):
             extra_context = context
             break
@@ -63,5 +72,5 @@ async def generate_diagram(diagram_type: str, requirements: str, language: str, 
     raw_response = await get_chat_completion(messages)
     actual_response = clean_plantuml_code(raw_response) 
     if not flag:
-      print(actual_response)
+        print(actual_response)
     return actual_response
