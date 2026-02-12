@@ -53,7 +53,7 @@ You are a CODE GENERATOR ONLY.
     ]
     return messages
 
-def getPromptExtractStructure(requirements: str, project_id: str):
+def getPromptExtractStructure(requirements: str, project_name: str):
     prompt = f"""
     Task: Analyze the requirements and extract a structured Class Diagram JSON.
     Rules for Enums:
@@ -63,7 +63,7 @@ def getPromptExtractStructure(requirements: str, project_id: str):
     Constraint: Return ONLY a raw JSON object. No markdown, no triple backticks (```).
     Structure:
     {{
-        "project_id": "{project_id}",
+        "projectName": "{project_name}",
         "classes": [
             {{
                 "className": "Name",

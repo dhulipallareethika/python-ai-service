@@ -75,6 +75,6 @@ async def extract_structure(request: ExtractionRequest = Body(...)):
     """
     structured_data = await extract_project_structure(
         request.requirementsText, 
-        request.project_id
+        request.projectName
     )
     return structured_data

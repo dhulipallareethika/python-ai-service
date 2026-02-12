@@ -60,11 +60,11 @@ class ClassModel(BaseModel):
     relationships: List[Relationship]
 
 class ProjectResponse(BaseModel):
-    project_id: str
+    projectName: str
     classes: List[ClassModel]
 
 class ExtractionRequest(BaseModel):
-    project_id: str
+    projectName: str
     requirementsText: str
 class ErrorResponse(BaseModel):
     message: str

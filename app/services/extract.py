@@ -3,8 +3,8 @@ import re
 from app.services.prompts import getPromptExtractStructure
 from app.kadalClient import get_chat_completion # Ensure this import matches your client name
 
-async def extract_project_structure(text: str, project_id: str) -> dict:
-    messages = getPromptExtractStructure(text, project_id)
+async def extract_project_structure(text: str, project_name: str) -> dict:
+    messages = getPromptExtractStructure(text, project_name)
     raw_response = await get_chat_completion(messages)
     clean_json = re.sub(r'```json|```', '', raw_response).strip()
     
@@ -13,7 +13,7 @@ async def extract_project_structure(text: str, project_id: str) -> dict:
         return structured_data
     except json.JSONDecodeError:
         return {
-            "project_id": project_id,
+            "projectName": project_name,
             "classes": [],
             "error": "Failed to parse AI response into JSON"
         }
