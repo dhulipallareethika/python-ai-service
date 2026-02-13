@@ -30,10 +30,83 @@ CLASS_RULES = """
 """
 
 USE_CASE_RULES = """
-1. Use 'left to right direction'.
-2. Wrap use cases in 'package "System Name" { ... }'.
-3. Define actors: 'actor :Actor Name: as Alias'.
-4. COMPULSORY: Provide at least 4 use cases for each primary actor.
+1. ARCHITECTURE & LAYOUT:
+   - MUST use 'left to right direction' for logical Actor → System flow
+   - MUST use 'skinparam linetype ortho' to avoid diagonal line clutter
+   - Actors MUST be positioned outside the system boundary (left or right side)
+   - Left side: Primary actors (who initiate actions)
+   - Right side: Secondary actors (external systems, services)
+2. SYSTEM BOUNDARY:
+   - All use cases MUST be contained within 'rectangle "System Name" { ... }'
+   - This defines the application boundary vs. external actors
+   - Use cases are INSIDE, actors are OUTSIDE
+3. ACTOR POSITIONING & ATTRIBUTES:
+   - PRIMARY ACTORS: Define on the LEFT side using 'actor "Name" as ID'
+   - SECONDARY ACTORS: Define on the RIGHT side (e.g., Payment Gateway, Email Service)
+   - ACTOR ATTRIBUTES:
+     * Create 'package "[Actor] Attributes"' positioned near the actor
+     * Inside package, define attributes as 'usecase (attributeName) <<Attribute>>'
+     * Connect attributes to their actor using dashed line: 'actor -- (attribute)'
+   - ALL attributes MUST be related/connected to their respective actors
+   - Attributes represent actor properties (e.g., username, email, role)
+4. FUNCTIONAL DEPTH:
+   - Each primary actor MUST have at least 4 associated use cases
+   - This ensures complete workflow representation
+   - Use meaningful, action-oriented use case names
+5. BEHAVIORAL RELATIONSHIPS (<<include>> and <<extend>>):
+   - <<include>>: Mandatory sub-processes
+     * Syntax: '(BaseUC) ..> (RequiredUC) : <<include>>'
+     * Example: (Checkout) ..> (Validate Payment) : <<include>>
+     * Use when base UC ALWAYS needs the included UC
+   - <<extend>>: Optional/conditional processes
+     * Syntax: '(ExtendingUC) ..> (BaseUC) : <<extend>>'
+     * Example: (Apply Discount) ..> (Checkout) : <<extend>>
+     * Use for optional features or conditional paths
+   - RULE: Every include/extend MUST be logically justified and connected to actor workflows
+6. ACTOR-TO-USECASE ASSOCIATIONS:
+   - MANDATORY: Every use case MUST be associated with at least one actor
+   - Syntax: 'actor --> (UseCase)' for primary initiation
+   - Syntax: '(UseCase) --> actor' for secondary actor involvement
+   - ALL use cases must trace back to an actor interaction
+7. GENERALIZATION (Inheritance):
+   - Actor inheritance: 'ParentActor <|-- ChildActor'
+   - Use case inheritance: 'ParentUC <|-- ChildUC'
+   - Example: 'User <|-- Admin' (Admin is a specialized User)
+   - Use for "is-a" relationships only
+8. VISUAL STYLING (MANDATORY):
+   skinparam usecase {
+     BackgroundColor White
+     BorderColor Black
+     ' Attribute distinction
+     BackgroundColor<<Attribute>> #F8F9FA
+     BorderColor<<Attribute>> #ADB5BD
+     FontSize<<Attribute>> 10
+   }
+   skinparam package {
+     BackgroundColor #E8EAF6
+     BorderColor #5C6BC0
+     FontStyle bold
+   }
+   skinparam actor {
+     BackgroundColor #BBDEFB
+     BorderColor #1976D2
+   }
+   skinparam ArrowColor #263238
+9. ATTRIBUTE-ACTOR RELATIONSHIP RULES:
+   - Attributes MUST be grouped in packages labeled "[ActorName] Attributes"
+   - Each attribute MUST have <<Attribute>> stereotype
+   - Connection: 'ActorID -- (attributeID)' using dashed line
+   - Attributes are NOT use cases but data properties of actors
+   - Position attribute packages adjacent to their actors (left for left actors, right for right actors)
+10. COMPLETENESS CHECKLIST:
+    ✓ All actors positioned left (primary) or right (secondary)
+    ✓ All actors have attribute packages with connections
+    ✓ All use cases inside system boundary
+    ✓ Every use case connected to at least one actor
+    ✓ At least one <<include>> or <<extend>> relationship present
+    ✓ Minimum 4 use cases per primary actor
+    ✓ All attributes connected to their respective actors
+    ✓ Proper stereotypes used (<<Attribute>>, <<include>>, <<extend>>)
 """
 
 COMPONENT_RULES = """
@@ -71,19 +144,31 @@ Task: Create a high-quality OpenAPI 3.1.0 YAML contract.
    - Start immediately with 'openapi: 3.1.0'.
 """
 ERD_MERMAID_RULES = """
-1. HEADER: Use 'flowchart TD' (Top-Down) to reduce horizontal line length and keep the layout compact.
-2. ENTITY SHAPE: Define entities as rectangles with bold text: 'ID[**Entity Name**]'.
-3. ATTRIBUTE SHAPE: Use stadium/oval shapes for attributes: 'AttrID([Attribute Name])'. 
-   - Note: Use '([ ])' instead of '(( ))' to produce professional ovals.
-4. RELATIONSHIP SHAPE: Use diamond shapes: 'RelID{Action}'.
-5. COMPACT CONNECTIONS:
-   - Use '---' (three dashes) for vertical connections to balance the diagram.
-   - Group attributes physically close to their entities in the code to minimize line length.
-6. PROFESSIONAL STYLING:
-   - ENTITIES: 'style ID fill:#dcfce7,stroke:#166534,stroke-width:2px,color:#166534'
-   - ATTRIBUTES: 'style AttrID fill:#ccfbf1,stroke:#0d9488,stroke-width:1px,color:#0d9488'
-   - RELATIONSHIPS: 'style RelID fill:#ffedd5,stroke:#9a3412,stroke-width:2px,color:#9a3412'
-7. FORBIDDEN: Do not use circular nodes '(( ))'. Use only ovals '([ ])'.
+1. HEADER: Use 'flowchart TD'.
+2. ENTITY SHAPES:
+    - STRONG ENTITY: Independent entity. Define as 'NodeID[**Entity Name**]'.
+    - WEAK ENTITY: Dependent entity (Composition nature). Define as 'WeakNodeID[[Entity Name]]'.
+3. PRIMARY KEY NOTATION: 
+    - ONLY the Primary Key attribute gets the combining underline character (U+0332: ̲ ).
+    - Format: PK_NodeID([a̲t̲t̲r̲i̲b̲u̲t̲e̲N̲a̲m̲e̲])
+4. ATTRIBUTE SHAPES:
+    - REGULAR ATTRIBUTE: Standard stadium: 'Attr_NodeID([attributeName])'.
+    - FOREIGN KEY ATTRIBUTE: Stadium with 'FK: ' prefix: 'FK_NodeID([FK: attributeName])'.
+5. CLEAN LABELS: No 'PK:' inside parentheses. Use only 'FK: ' for foreign keys.
+6. RELATIONSHIP SHAPES:
+    - STRONG RELATIONSHIP: Single diamond: 'RelID{"Action Name"}'.
+    - WEAK (IDENTIFYING) RELATIONSHIP: Double diamond: 'WeakRelID{{"Action Name"}}'.
+7. CARDINALITY NOTATION:
+    - Format: 'EntityA ---|1| RelID ---|M| EntityB'.
+8. ATTRIBUTE CONNECTION RULE: 
+    - Link every attribute to its parent: 'NodeID --- Attr_NodeID'.
+9. PROFESSIONAL STYLING (THE COLOR FIX):
+    - Apply all styles at the VERY BOTTOM of the diagram.
+    - STRONG ENTITIES (Blue): 'style NodeID fill:#e1f5fe,stroke:#01579b,stroke-width:2px'
+    - WEAK ENTITIES (Pink): 'style WeakNodeID fill:#fce4ec,stroke:#880e4f,stroke-width:4px,color:#000'
+    - ALL ATTRIBUTES (Gray): 'style AttrID fill:#f5f5f5,stroke:#616161,stroke-width:1px'
+    - STRONG RELATIONSHIPS (Green): 'style RelID fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px'
+    - WEAK RELATIONSHIPS (Yellow): 'style WeakRelID fill:#fff9c4,stroke:#fbc02d,stroke-width:4px'
 """
 
 SEQUENCE_MERMAID_RULES = """
