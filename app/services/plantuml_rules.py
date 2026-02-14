@@ -161,6 +161,7 @@ ERD_MERMAID_RULES = """
 7. CARDINALITY NOTATION:
     - Format: 'EntityA ---|1| RelID ---|M| EntityB'.
 8. ATTRIBUTE CONNECTION RULE: 
+    - Some attributes are missing and the lines for that attributes are still existing in the diagram.Identify and place the attributes in there place.
     - Link every attribute to its parent: 'NodeID --- Attr_NodeID'.
 9. PROFESSIONAL STYLING (THE COLOR FIX):
     - Apply all styles at the VERY BOTTOM of the diagram.
