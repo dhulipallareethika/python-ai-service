@@ -202,15 +202,17 @@ CLASS_MERMAID_RULES = """
 """
 
 USE_CASE_MERMAID_RULES = """
-1. Use 'flowchart LR' (Left-to-Right) to maximize horizontal space and readability.
-2. SYSTEM BOUNDARY: You MUST wrap all use cases in a 'subgraph' labeled "Student Management System".
-3. ACTOR DEFINITION: Define actors using the circle shape: 'ActorID((Actor Name))'.
-   - Include Student, Instructor, and Administrator as separate nodes outside the subgraph.
-4. USE CASE DEFINITION: Define use cases using the rounded-rectangle shape: 'UseCaseID([Use Case Name])'.
-   - Include every action: Enroll in Course, View Grades, Pay Fees, Update Profile, etc.
-5. STYLING: Add a style command at the end to increase node size: 'classDef default fill:#f9f,stroke:#333,stroke-width:2px;'.
-6. RELATIONSHIPS: Connect actors to use cases using '---'.
-7. FULL SCOPE: Do not omit any actors or use cases found in the requirements; the code must be comprehensive.
+1. LAYOUT: Always use 'graph LR' (Left-to-Right) to maintain the standard UML Actor-System-Actor flow.
+2. SYSTEM BOUNDARY: All Use Cases MUST be contained within a 'subgraph' labeled "Student Management System".
+3. ACTOR NOTATION: Define actors outside the subgraph using circle nodes: 'ActorID((Actor Name))'. 
+   - Mandatory Actors: Student, Instructor, Administrator.
+4. USE CASE NOTATION: Define use cases inside the subgraph using stadium shapes: 'UseCaseID([Use Case Name])'.
+   - Include all functionalities: Enroll in Course, View Course Details, Track Grades, Manage Course Material, Manage Financial Invoices, Maintain Central Database, Manage Student Profiles, Manage Tuition Fees, Generate Report Cards, and Process Payment.
+5. RELATIONSHIP TYPES:
+   - ASSOCIATION: Use '---' (solid line) for connections between an Actor and a Use Case.
+   - INCLUDE: Use '-.->|<< include >>|' for mandatory dependencies (e.g., Enroll -> Manage Student Profiles).
+   - EXTEND: Use '-.->|<< extend >>|' for optional/conditional features (e.g., Manage Financial Invoices -> Process Payment).
+6. FULL SCOPE: Ensure every relationship from the provided visual references is mapped, specifically ensuring multiple actors can link to a single use case where appropriate.
 """
 
 COMPONENT_MERMAID_RULES = """
