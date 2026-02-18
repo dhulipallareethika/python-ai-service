@@ -29,21 +29,21 @@ def getPromptMessage(diagramType:  str, extraContext: str, requirements: str,lan
 def getPromptDerivedArtifact(extraContext, sourceUML, requirements):
 
     prompt = f"""
-{extraContext}
-### STRUCTURED DATA MODEL (SOURCE OF TRUTH)
-{requirements}
-### UML CONTEXT (ONLY FOR DATABASE, EMPTY FOR API)
-{sourceUML}
-### FINAL RULES
-You are a CODE GENERATOR ONLY.
-- API → Output ONLY OpenAPI YAML
-- DATABASE → Output ONLY SQL + MongoDB
-- NO UML
-- NO PlantUML
-- NO @startuml
-- NO diagrams
-- NO markdown
-"""
+    {extraContext}
+     ### STRUCTURED DATA MODEL (SOURCE OF TRUTH)
+    {requirements}
+     ### UML CONTEXT (ONLY FOR DATABASE, EMPTY FOR API)
+    {sourceUML}
+    ### FINAL RULES
+    You are a CODE GENERATOR ONLY.
+    - API → Output ONLY OpenAPI YAML
+    - DATABASE → Output ONLY SQL + MongoDB
+    - NO UML
+    - NO PlantUML
+    - NO @startuml
+    - NO diagrams
+    - NO markdown
+    """
     messages = [
         {
             "role": "system",
@@ -81,6 +81,24 @@ def getPromptExtractStructure(requirements: str, project_name: str):
     """
     messages = [
         {"role": "system", "content": "You are a software architect that outputs ONLY valid JSON based on class structures."},
+        {"role": "user", "content": prompt}
+    ]
+    return messages
+
+
+def getPromptRefineArtifact(extraContext, existingCode, instruction):
+    prompt = f"""
+    Task: Refine the following technical artifact (JSON/SQL/Code).
+    Rules for this artifact type:
+    {extraContext}
+    [Existing Code]:
+    {existingCode}
+    [Refinement Instructions]:
+    {instruction}
+    Constraint: Return ONLY the raw code or JSON. No markdown blocks or explanations.
+    """
+    messages = [
+        {"role": "system", "content": "You are a technical expert. Refine the provided artifact strictly following instructions."},
         {"role": "user", "content": prompt}
     ]
     return messages
