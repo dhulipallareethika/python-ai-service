@@ -1,15 +1,11 @@
 import json
 import re
-from app.services.prompts import getPromptExtractStructure
-from app.kadalClient import get_chat_completion 
+from app.services.prompts import get_prompt_extract_structure
+from app.kadalclient import get_chat_completion 
 from app.logger import log
 
 async def extract_project_structure(requirements_text: str, project_name: str, correlation_id: str) -> dict:
-    """
-    Analyzes requirements to extract a structured JSON representation of classes and relationships.
-    """
-    log.info(f"Starting extraction for project: {project_name}", extra={'correlation_id': correlation_id})
-    messages = getPromptExtractStructure(requirements_text, project_name)
+    messages = get_prompt_extract_structure(requirements_text, project_name)
     try:
         raw_response = await get_chat_completion(messages, correlation_id=correlation_id)
         clean_json = re.sub(r'```(?:json)?', '', raw_response).strip()

@@ -13,7 +13,6 @@ ERD_SPECIFIC_RULES = """
    - Exactly One: ||--
 8. Label relationships with ' : ' to describe the action (e.g., 'User ||--o{ Order : places').
 """
-
 SEQUENCE_RULES = """
 1. Use 'autonumber' at the start.
 2. Define participants: 'participant "Name" as Alias'.
@@ -22,13 +21,11 @@ SEQUENCE_RULES = """
 5. Do not use 'activate' for static data storage descriptions or relationships.
 6. Ensure every 'alt', 'loop', or 'group' block is strictly closed with 'end'.
 """
-
 CLASS_RULES = """
 1. Use 'class "Name" {' and define attributes first, then methods.
 2. Use visibility markers: - (private), # (protected), + (public).
 3. Use standard arrows: <|-- (Inheritance), *-- (Composition), o-- (Aggregation).
 """
-
 USE_CASE_RULES = """
 1. ARCHITECTURE & LAYOUT:
    - MUST use 'left to right direction' for logical Actor → System flow
@@ -94,7 +91,6 @@ USE_CASE_RULES = """
    skinparam ArrowColor #263238
 9. ATTRIBUTE-ACTOR RELATIONSHIP RULES:
    - Attributes MUST be grouped in packages labeled "[ActorName] Attributes"
-   - Each attribute MUST have <<Attribute>> stereotype
    - Connection: 'ActorID -- (attributeID)' using dashed line
    - Attributes are NOT use cases but data properties of actors
    - Position attribute packages adjacent to their actors (left for left actors, right for right actors)
@@ -108,7 +104,6 @@ USE_CASE_RULES = """
     ✓ All attributes connected to their respective actors
     ✓ Proper stereotypes used (<<Attribute>>, <<include>>, <<extend>>)
 """
-
 COMPONENT_RULES = """
 1. Use 'skinparam componentStyle uml2'.
 2. Define components ONLY as: 'component [Display Name] as Alias'. Use square brackets [].
@@ -118,7 +113,6 @@ COMPONENT_RULES = """
 6. FORBIDDEN keywords: participant, actor, autonumber, activate, deactivate, entity, class.
 7. The diagram must represent SYSTEM ARCHITECTURE, not behavior or interactions.
 """
-
 DATABASE_CODE_RULES = """
 Task: Convert the provided JSON classes into production-ready Database Schemas.
 1. SOURCE OF TRUTH: Use the 'className', 'attributes', and 'relationships' from the provided JSON.
@@ -130,7 +124,6 @@ Task: Convert the provided JSON classes into production-ready Database Schemas.
    - For SQL: Include Foreign Keys based on the JSON relationships.
    - For NoSQL: Provide the db.createCollection() syntax with $jsonSchema.
 """
-
 API_CONTRACT_RULES = """
 Task: Create a high-quality OpenAPI 3.1.0 YAML contract.
 1. FORMAT: RAW YAML ONLY.
@@ -171,7 +164,6 @@ ERD_MERMAID_RULES = """
     - STRONG RELATIONSHIPS (Green): 'style RelID fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px'
     - WEAK RELATIONSHIPS (Yellow): 'style WeakRelID fill:#fff9c4,stroke:#fbc02d,stroke-width:4px'
 """
-
 SEQUENCE_MERMAID_RULES = """
 1. Use the 'sequenceDiagram' header.
 2. Use 'autonumber' on the second line to enable message numbering.
@@ -180,7 +172,6 @@ SEQUENCE_MERMAID_RULES = """
 5. For return messages, use the dotted arrow: 'Alias-->>Alias: message'.
 6. Logic blocks must be strictly closed: 'alt ... else ... end', 'opt ... end', or 'loop ... end'.
 """
-
 CLASS_MERMAID_RULES = """
 1. Use the 'classDiagram' header at the top.
 2. Define class members inside curly braces: 'class Name { visibility type name }'.
@@ -200,21 +191,27 @@ CLASS_MERMAID_RULES = """
 6. Use cardinality labels with quotes: 'ClassA "1" --> "*" ClassB : contains'.
 7. CRITICAL: Do not use 'skinparam' or 'hide circle' as these are PlantUML-specific.
 """
-
-USE_CASE_MERMAID_RULES = """
-1. LAYOUT: Always use 'graph LR' (Left-to-Right) to maintain the standard UML Actor-System-Actor flow.
-2. SYSTEM BOUNDARY: All Use Cases MUST be contained within a 'subgraph' labeled "Student Management System".
-3. ACTOR NOTATION: Define actors outside the subgraph using circle nodes: 'ActorID((Actor Name))'. 
-   - Mandatory Actors: Student, Instructor, Administrator.
-4. USE CASE NOTATION: Define use cases inside the subgraph using stadium shapes: 'UseCaseID([Use Case Name])'.
-   - Include all functionalities: Enroll in Course, View Course Details, Track Grades, Manage Course Material, Manage Financial Invoices, Maintain Central Database, Manage Student Profiles, Manage Tuition Fees, Generate Report Cards, and Process Payment.
-5. RELATIONSHIP TYPES:
-   - ASSOCIATION: Use '---' (solid line) for connections between an Actor and a Use Case.
-   - INCLUDE: Use '-.->|<< include >>|' for mandatory dependencies (e.g., Enroll -> Manage Student Profiles).
-   - EXTEND: Use '-.->|<< extend >>|' for optional/conditional features (e.g., Manage Financial Invoices -> Process Payment).
-6. FULL SCOPE: Ensure every relationship from the provided visual references is mapped, specifically ensuring multiple actors can link to a single use case where appropriate.
-"""
-
+USE_CASE_MERMAID_RULES ="""
+1. Architecture & Global Layout
+Direction: Always use flowchart LR. This forces a Left-to-Right narrative where Actors (inputs) sit on the left and the System/Outputs sit on the right.
+The System Boundary: All Use Cases must reside inside a subgraph SystemID ["System Name"].
+Internal Stacking: Inside the subgraph, use direction TB. This ensures that even if the outer flow is horizontal, the inner Use Cases stack vertically.
+2. The "Invisible Spine" (Crucial for Alignment)
+Mermaid's engine tries to save space by placing nodes side-by-side. To stop this and create a clean column:
+Rule: Create a hidden chain of all Use Cases using the triple-tilde: UC1 ~~~ UC2 ~~~ UC3 ~~~ UC4.
+Result: This forces a strict vertical alignment regardless of how many actors connect to them.
+3. Component Anatomy
+Actors: Must use the "Stickman" syntax: ActorID(["웃 <br/> Name"]). The <br/> keeps the text centered under the icon.
+Use Cases: Use the stadium shape: UC_ID([Action Verb + Noun]). Avoid squares or diamonds.
+External Systems/DBs: Use the cylinder shape: DB_ID[(Database Name)]. Place these code-wise after the subgraph so they appear on the far right.
+4. Behavioral Relationships
+Direct Interaction: Use solid lines --> from Actors to Use Cases.
+Mandatory Sub-processes: Use UC_Parent -. "«include»" .-> UC_Child.
+Optional Features: Use UC_Parent -. "«extend»" .-> UC_Child.
+Note: Keep the labels in double-guillemets (« ») to match UML standards.
+5. Mandatory Visual Styling
+Always append a standardized classDef block to the end of the code. This distinguishes the "Nature" of each component at a glance (Blue = Human, Green = Process, Yellow = Data).
+   """
 COMPONENT_MERMAID_RULES = """
 1. HEADER: Always start with 'flowchart TD'.
 2. SYSTEM BOUNDARY: You MUST wrap all identified modules within a 'subgraph "System Architecture"'.

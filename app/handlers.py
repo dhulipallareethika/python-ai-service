@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 import json
 from starlette.concurrency import iterate_in_threadpool
+from app.logger import log
 
 class LLMServiceError(Exception):
     def __init__(self, message: str):
@@ -10,37 +11,37 @@ class LLMServiceError(Exception):
 
 async def global_exception_handler(request: Request, exc: Exception):
     if isinstance(exc, RequestValidationError):
-        error_details = exc.errors()[0]
-        msg = f"{error_details['msg']} (Field: {error_details['loc'][-1]})"
+        error_details = exc.errors()
+        log.error(f"Validation Error occurred: {error_details}")
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={
                 "status": "FAILURE",
                 "data": None,
                 "error": {
-                    "message": msg,
+                    "message": "Invalid request parameters",
+                    "details": error_details,
                     "code": "VALIDATION_ERROR"
                 }
             }
         )
     if isinstance(exc, LLMServiceError):
+        log.error(f"LLM Service Error: {exc.message}")
         return JSONResponse(
             status_code=status.HTTP_502_BAD_GATEWAY,
             content={
                 "status": "FAILURE",
                 "data": None,
-                "error": {
-                    "message": exc.message,
-                    "code": "LLM_PROVIDER_ERROR"
-                }
+                "error": {"message": exc.message, "code": "LLM_PROVIDER_ERROR"}
             }
         )
+    log.exception(f"Unhandled Exception: {str(exc)}")
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
             "status": "FAILURE",
             "data": None,
-            "error": {"message": str(exc), "code": "INTERNAL_ERROR"}
+            "error": {"message": "Internal Server Error", "code": "INTERNAL_ERROR"}
         }
     )
 

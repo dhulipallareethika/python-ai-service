@@ -24,10 +24,6 @@ client = AsyncAzureOpenAI(
 )
 
 async def get_chat_completion(messages, correlation_id: str, model="gpt-4o-mini", temperature=0.7):
-    """
-    Sends a request to the LLM and returns the content.
-    Includes correlation_id in logs for distributed tracing.
-    """
     log.info(
         f"Requesting completion from model {model}", 
         extra={'correlation_id': correlation_id}
